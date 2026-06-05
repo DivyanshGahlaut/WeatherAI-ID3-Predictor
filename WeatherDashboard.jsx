@@ -25,6 +25,7 @@ import Search from "./components/Search";
 import WeatherCard from "./components/WeatherCard";
 import Forecast from "./components/Forecast";
 import IntelligencePanel from "./components/IntelligencePanel";
+import AboutModal from "./components/AboutModal";
 import { WeatherIcon } from "./components/Icons";
 import { Component as RaycastBackground } from "./components/ui/raycast-animated-background";
 
@@ -56,6 +57,7 @@ export default function WeatherDashboard() {
   const [aiInsight, setAiInsight] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [showAI, setShowAI] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   const toTemp = (k) => unit === "C" ? kelvinToCelsius(k) : Math.round((k - 273.15) * 9/5 + 32);
 
@@ -409,6 +411,7 @@ export default function WeatherDashboard() {
           time={time} days={DAYS} months={MONTHS} unit={unit} setUnit={setUnit} 
           dark={dark} setDark={setDark} text={styles.text} muted={styles.muted} 
           card={styles.card} cardBorder={styles.cardBorder} accent={styles.accent} 
+          onAboutClick={() => setShowAbout(true)}
         />
 
         <Search 
@@ -496,6 +499,16 @@ export default function WeatherDashboard() {
           </div>
         )}
       </div>
+      <AboutModal 
+        isOpen={showAbout} 
+        onClose={() => setShowAbout(false)} 
+        dark={dark} 
+        text={styles.text} 
+        muted={styles.muted} 
+        card={styles.card} 
+        cardBorder={styles.cardBorder} 
+        accent={styles.accent} 
+      />
       </div>
     </div>
   );

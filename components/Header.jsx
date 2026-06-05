@@ -1,6 +1,14 @@
 import { SunIcon, MoonIcon } from "./Icons";
 
-export default function Header({ time, days, months, unit, setUnit, dark, setDark, text, muted, card, cardBorder, accent }) {
+const InfoIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 2 }}>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
+export default function Header({ time, days, months, unit, setUnit, dark, setDark, text, muted, card, cardBorder, accent, onAboutClick }) {
   return (
     <div className="header-container">
       <div>
@@ -21,7 +29,11 @@ export default function Header({ time, days, months, unit, setUnit, dark, setDar
         <button onClick={() => setDark(d => !d)} style={{ background: card, border: `1px solid ${cardBorder}`, borderRadius: 20, padding: "6px 12px", cursor: "pointer", fontSize: 13, color: text, display: "flex", alignItems: "center", gap: 4 }}>
           {dark ? <SunIcon /> : <MoonIcon />}
         </button>
+        <button onClick={onAboutClick} style={{ background: card, border: `1px solid ${cardBorder}`, borderRadius: 20, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 500, color: text, display: "flex", alignItems: "center", gap: 4 }}>
+          <InfoIcon /> About
+        </button>
       </div>
     </div>
   );
 }
+
