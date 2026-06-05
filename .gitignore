@@ -1,0 +1,16 @@
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# SQLite Cache
+.cache.sqlite
+
+# System and logs
+*.log
+.DS_Store
+.vscode/
+.idea/
+*.local
