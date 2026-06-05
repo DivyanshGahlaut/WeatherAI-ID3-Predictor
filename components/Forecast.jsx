@@ -8,15 +8,14 @@ export default function Forecast({ forecast, toTemp, accent, text, muted, cardBo
         6-Day Forecast
       </h3>
       {forecast.map((d, i) => (
-        <div key={d.dt} className="card-hover" style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 0", borderBottom: i < forecast.length - 1 ? `1px solid ${cardBorder}` : "none"
+        <div key={d.dt} className="card-hover forecast-row" style={{
+          borderBottom: i < forecast.length - 1 ? `1px solid ${cardBorder}` : "none"
         }}>
-          <div style={{ width: 110, fontSize: 14, fontWeight: 500, color: i === 0 ? accent : text }}>
+          <div className="forecast-day" style={{ fontWeight: 500, color: i === 0 ? accent : text }}>
             {i === 0 ? "Today" : i === 1 ? "Tomorrow" : getDayLabel(i)}
           </div>
           <WeatherIcon condition={d.weather.main} size={32} />
-          <div style={{ fontSize: 12, color: muted, width: 70, textAlign: "center", textTransform: "capitalize" }}>
+          <div className="forecast-desc" style={{ color: muted, textTransform: "capitalize" }}>
             {d.weather.description}
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>

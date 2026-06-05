@@ -14,7 +14,7 @@ export default function WeatherCard({ current, toTemp, dark, text, muted, card, 
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginTop: 8 }}>
-            <span style={{ fontSize: 72, fontWeight: 300, color: text, lineHeight: 1, fontFamily: "'Space Grotesk',sans-serif" }}>
+            <span className="temp-text" style={{ color: text, fontFamily: "'Space Grotesk',sans-serif" }}>
               {toTemp(current.main.temp)}°
             </span>
             <div style={{ paddingBottom: 12 }}>
@@ -33,7 +33,7 @@ export default function WeatherCard({ current, toTemp, dark, text, muted, card, 
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(110px,1fr))", gap: 10, marginTop: 20 }}>
+      <div className="weather-metrics-grid">
         {[
           { icon: "💧", label: "Humidity", val: `${current.main.humidity}%` },
           { icon: "💨", label: "Wind", val: `${mpsToKmh(current.wind.speed)} km/h` },

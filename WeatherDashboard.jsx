@@ -350,7 +350,7 @@ export default function WeatherDashboard() {
   return (
     <div style={{ minHeight: "100vh", fontFamily: "'Inter', sans-serif", boxSizing: "border-box", position: "relative" }}>
       {/* Raycast Animated Background */}
-      <div style={{
+      <div className="bg-container" style={{
         position: "fixed",
         top: 0,
         left: 0,
@@ -364,12 +364,8 @@ export default function WeatherDashboard() {
       </div>
 
       {/* Main Overlay & Content */}
-      <div style={{
-        position: "relative",
-        zIndex: 2,
-        minHeight: "100vh",
-        background: styles.bg,
-        padding: "20px 40px"
+      <div className="dashboard-container" style={{
+        background: styles.bg
       }}>
       {loading && current && (
         <div style={{
@@ -398,7 +394,6 @@ export default function WeatherDashboard() {
       )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-        * { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
@@ -407,11 +402,9 @@ export default function WeatherDashboard() {
         .tab-btn { background:none; border:none; cursor:pointer; padding:8px 18px; border-radius:20px; font-size:13px; font-weight:500; transition:all 0.2s; }
         .search-input:focus { outline:none; border-color:#6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
         .prob-bar { transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
-        .dashboard-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; max-width: 1600px; margin: 0 auto; }
-        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
       `}</style>
 
-      <div style={{ maxWidth: 1600, margin: "0 auto" }}>
+      <div className="dashboard-content">
         <Header 
           time={time} days={DAYS} months={MONTHS} unit={unit} setUnit={setUnit} 
           dark={dark} setDark={setDark} text={styles.text} muted={styles.muted} 
@@ -452,7 +445,7 @@ export default function WeatherDashboard() {
                 {activeTab === "today" ? (
                   <div style={{ animation: "fadeUp 0.3s ease" }}>
                     <h3 style={{ margin: "0 0 16px", fontSize: 14, fontWeight: 600, color: styles.muted, textTransform: "uppercase" }}>Next 24 Hours</h3>
-                    <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 10 }}>
+                    <div className="hourly-container">
                       {hourly.map((h, i) => (
                         <div key={h.dt} className="card-hover" style={{
                           minWidth: 78, background: i === 0 ? styles.accent : (dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"),

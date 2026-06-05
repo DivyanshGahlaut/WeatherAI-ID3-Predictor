@@ -1,6 +1,6 @@
 export default function Search({ search, setSearch, handleSearch, fetchByGeo, text, accent, card, cardBorder, loading }) {
   return (
-    <form onSubmit={handleSearch} style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+    <form onSubmit={handleSearch} className="search-form">
       <input
         className="search-input"
         value={search} onChange={e => setSearch(e.target.value)}

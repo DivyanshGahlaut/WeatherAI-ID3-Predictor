@@ -214,12 +214,7 @@ export default function IntelligencePanel({
             </div>
 
             {/* Sub-models comparison */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 12,
-              marginBottom: 16
-            }}>
+            <div className="submodels-grid">
               {/* ID3 Decision Tree Sub-model */}
               <div style={{
                 background: dark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)",

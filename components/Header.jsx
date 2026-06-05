@@ -2,7 +2,7 @@ import { SunIcon, MoonIcon } from "./Icons";
 
 export default function Header({ time, days, months, unit, setUnit, dark, setDark, text, muted, card, cardBorder, accent }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+    <div className="header-container">
       <div>
         <h1 style={{ margin: 0, fontSize: 22, fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, color: text }}>
           ⛅ WeatherAI
@@ -11,7 +11,7 @@ export default function Header({ time, days, months, unit, setUnit, dark, setDar
           {days[time.getDay()]}, {time.getDate()} {months[time.getMonth()]} · ID3 Predictions
         </p>
       </div>
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+      <div className="header-actions">
         <div style={{ background: card, border: `1px solid ${cardBorder}`, borderRadius: 20, padding: "6px 14px", fontSize: 13, fontWeight: 600, color: accent, fontVariantNumeric: "tabular-nums" }}>
           {time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}
         </div>
