@@ -1,6 +1,8 @@
-# 🌦️ WeatherAI-ID3-Predictor
+# WeatherAI-ID3-Predictor
 
-A state-of-the-art Weather Dashboard combining **real-time weather diagnostics**, **client-side predictive Machine Learning (ID3 Decision Tree)**, and **GPU-accelerated interactive WebGL graphics** wrapped in a modern glassmorphic interface.
+Developed by Divyansh Gahlaut
+
+A React-based weather intelligence dashboard combining OpenWeatherMap, Open-Meteo, ID3 Decision Trees, and AI-powered weather insights
 
 ---
 
@@ -46,6 +48,7 @@ A state-of-the-art Weather Dashboard combining **real-time weather diagnostics**
 │   ├── ui/
 │   │   ├── raycast-animated-background.tsx  # Canvas background container
 │   │   └── demo.tsx                         # Canvas background play demo page
+│   ├── AboutModal.jsx                       # About developer & dashboard metadata modal
 │   ├── AIInsight.jsx                        # Claude text bubble container
 │   ├── Forecast.jsx                         # Multi-day forecast panels
 │   ├── Header.jsx                           # Application Header / theme switches
