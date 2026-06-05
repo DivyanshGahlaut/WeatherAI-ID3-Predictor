@@ -80,13 +80,9 @@ export const generateLocalWeatherInsight = (current, prediction, outdoorScore) =
   const currentAnalysis = `Currently, it's ${tempC}°C with ${condition}. The humidity is at ${current.main.humidity}% with winds of ${Math.round(current.wind.speed * 3.6)} km/h.`;
   
   let mlInsight = "";
-  if (prediction.dominant === "Sunny") {
-    mlInsight = `Our ID3 model predicts a favorable outlook for tomorrow, showing a ${prediction.Sunny}% confidence of sunny weather.`;
-  } else if (prediction.dominant === "Rainy") {
-    mlInsight = `Our ID3 model flags high rain probability tomorrow (${prediction.Rainy}% chance), indicating you should keep plans indoor-oriented.`;
-  } else {
-    mlInsight = `The model predicts mostly cloudy skies tomorrow with a ${prediction.Cloudy}% chance, suggesting overcast but mostly dry conditions.`;
-  }
+  const domStr = prediction.dominant;
+  const confidence = prediction[domStr];
+  mlInsight = `Our Google-grade hybrid ensembled model predicts ${domStr.toLowerCase()} weather for tomorrow with a blended confidence of ${confidence}%. This combines local ID3 decision tree transitions (30% weight) with live professional meteorological models (70% weight).`;
   
   let tip = "";
   if (outdoorScore > 80) {

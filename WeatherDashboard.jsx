@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 
 // Services
 import { fetchWeatherByCity, fetchForecastByCity, fetchWeatherByCoords } from "./services/openWeatherMap";
-import { fetchHistoricalData } from "./services/openMeteo";
+import { fetchHistoricalData, fetchAccurateWeatherData } from "./services/openMeteo";
 
 // ML
 import { TRAINING_DATA, FEATURES } from "./ml/dataset";
 import { buildTree } from "./ml/id3";
-import { predictTree, getProbabilities } from "./ml/prediction";
+import { predictTree, getProbabilities, getForecastProbabilities, getHybridPrediction } from "./ml/prediction";
 
 // Utils
 import { 
@@ -28,7 +28,14 @@ import IntelligencePanel from "./components/IntelligencePanel";
 import { WeatherIcon } from "./components/Icons";
 import { Component as RaycastBackground } from "./components/ui/raycast-animated-background";
 
-const decisionTree = buildTree(TRAINING_DATA, FEATURES, "condition");
+const transitionTrainingData = [];
+for (let i = 0; i < TRAINING_DATA.length - 1; i++) {
+  transitionTrainingData.push({
+    ...TRAINING_DATA[i],
+    condition: TRAINING_DATA[i + 1].condition
+  });
+}
+const decisionTree = buildTree(transitionTrainingData, FEATURES, "condition");
 
 export default function WeatherDashboard() {
   const [dark, setDark] = useState(true);
@@ -77,7 +84,14 @@ export default function WeatherDashboard() {
             }, {});
           });
         
-        const csvTree = buildTree(parsedData, FEATURES, "condition", 0, 2);
+        const transitionParsedData = [];
+        for (let i = 0; i < parsedData.length - 1; i++) {
+          transitionParsedData.push({
+            ...parsedData[i],
+            condition: parsedData[i + 1].condition
+          });
+        }
+        const csvTree = buildTree(transitionParsedData, FEATURES, "condition", 0, 2);
         setCsvFallbackTree(csvTree);
         setCustomTree(csvTree);
       } catch (err) {
@@ -95,6 +109,86 @@ export default function WeatherDashboard() {
         fetchWeatherByCity(q),
         fetchForecastByCity(q)
       ]);
+      
+      // Fetch high-accuracy weather data from Open-Meteo for coordinates
+      try {
+        const accurateData = await fetchAccurateWeatherData(w.coord.lat, w.coord.lon);
+        
+        // Override current weather (w) with accurate Open-Meteo data
+        if (accurateData.current) {
+          const cur = accurateData.current;
+          w.main.temp = cur.temperature_2m + 273.15;
+          w.main.humidity = cur.relative_humidity_2m;
+          w.wind.speed = cur.wind_speed_10m / 3.6; // km/h to m/s
+          w.main.pressure = cur.surface_pressure;
+          w.main.feels_like = (cur.apparent_temperature !== undefined ? cur.apparent_temperature : cur.temperature_2m) + 273.15;
+          
+          if (accurateData.daily) {
+            w.main.temp_max = (accurateData.daily.temperature_2m_max[0] !== undefined ? accurateData.daily.temperature_2m_max[0] : cur.temperature_2m) + 273.15;
+            w.main.temp_min = (accurateData.daily.temperature_2m_min[0] !== undefined ? accurateData.daily.temperature_2m_min[0] : cur.temperature_2m) + 273.15;
+            
+            if (accurateData.daily.sunrise && accurateData.daily.sunrise[0]) {
+              w.sys.sunrise = Math.round(new Date(accurateData.daily.sunrise[0]).getTime() / 1000);
+            }
+            if (accurateData.daily.sunset && accurateData.daily.sunset[0]) {
+              w.sys.sunset = Math.round(new Date(accurateData.daily.sunset[0]).getTime() / 1000);
+            }
+          }
+          
+          // Map weather code to text/main condition
+          const code = cur.weather_code;
+          if (code === 0 || code === 1) {
+            w.weather[0].main = "Clear";
+            w.weather[0].description = "clear sky";
+          } else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || (code >= 95 && code <= 99)) {
+            w.weather[0].main = "Rain";
+            w.weather[0].description = "rain";
+          } else {
+            w.weather[0].main = "Clouds";
+            w.weather[0].description = code === 2 ? "few clouds" : code === 3 ? "broken clouds" : "overcast clouds";
+          }
+        }
+        
+        // Override forecast list (f.list) with accurate Open-Meteo hourly data
+        if (accurateData.hourly && accurateData.hourly.time) {
+          const hourly = accurateData.hourly;
+          f.list.forEach(item => {
+            const targetMs = item.dt * 1000;
+            let bestIdx = 0;
+            let minDiff = Infinity;
+            for (let i = 0; i < hourly.time.length; i++) {
+              const tMs = new Date(hourly.time[i]).getTime();
+              const diff = Math.abs(tMs - targetMs);
+              if (diff < minDiff) {
+                minDiff = diff;
+                bestIdx = i;
+              }
+            }
+            
+            const tempCelsius = hourly.temperature_2m[bestIdx];
+            item.main.temp = tempCelsius + 273.15;
+            item.main.temp_max = tempCelsius + 273.15;
+            item.main.temp_min = tempCelsius + 273.15;
+            item.main.humidity = hourly.relative_humidity_2m[bestIdx];
+            item.main.pressure = hourly.surface_pressure[bestIdx];
+            item.wind.speed = hourly.wind_speed_10m[bestIdx] / 3.6;
+            
+            const code = hourly.weather_code[bestIdx];
+            if (code === 0 || code === 1) {
+              item.weather[0].main = "Clear";
+              item.weather[0].description = "clear sky";
+            } else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || (code >= 95 && code <= 99)) {
+              item.weather[0].main = "Rain";
+              item.weather[0].description = "rain";
+            } else {
+              item.weather[0].main = "Clouds";
+              item.weather[0].description = "cloudy";
+            }
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to override with accurate Open-Meteo data:", err);
+      }
       
       setCurrent(w);
       setCity(w.name);
@@ -139,9 +233,25 @@ export default function WeatherDashboard() {
         setTrainedOnHistorical(false);
       }
 
-      const probs = getProbabilities(activeTree, sample);
-      const dom = predictTree(activeTree, sample);
-      setPrediction({ ...probs, dominant: dom, sample });
+      // 1. Get local statistical ID3 predictions
+      const id3Probs = getProbabilities(activeTree, sample);
+      const id3Dom = predictTree(activeTree, sample);
+      const id3Prediction = { ...id3Probs, dominant: id3Dom };
+
+      // 2. Get professional meteorological forecast predictions for tomorrow
+      const forecastProbs = getForecastProbabilities(f.list);
+      const forecastDom = Object.keys(forecastProbs).reduce((a, b) => forecastProbs[a] > forecastProbs[b] ? a : b);
+      const forecastPrediction = { ...forecastProbs, dominant: forecastDom };
+
+      // 3. Ensemble them to get the Hybrid Prediction (weight: 30% ID3, 70% OWM forecast)
+      const hybridPrediction = getHybridPrediction(id3Probs, forecastProbs, 0.3);
+
+      setPrediction({
+        ...hybridPrediction,
+        sample,
+        id3: id3Prediction,
+        forecast: forecastPrediction
+      });
 
     } catch (e) {
       setError(e.message);

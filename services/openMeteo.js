@@ -31,10 +31,10 @@ export const fetchHistoricalData = async (lat, lon) => {
     throw new Error("Missing daily or hourly parameters in Open-Meteo response");
   }
   
-  const trainingData = daily.time.map((time, idx) => {
+  const trainingData = daily.time.slice(0, -1).map((time, idx) => {
     const tempMean = daily.temperature_2m_mean[idx];
     const windSpeedMax = daily.wind_speed_10m_max[idx];
-    const code = daily.weather_code[idx];
+    const nextDayCode = daily.weather_code[idx + 1];
     
     // Each day has 24 hourly readings
     const startHourIdx = idx * 24;
@@ -51,13 +51,13 @@ export const fetchHistoricalData = async (lat, lon) => {
       ? dayPressures.reduce((sum, val) => sum + val, 0) / dayPressures.length 
       : 1013;
     
-    // Map WMO weather codes to Sunny, Cloudy, Rainy
+    // Map next day's WMO weather codes to Sunny, Cloudy, Rainy
     let condition = "Cloudy";
-    if (code === 0 || code === 1) {
+    if (nextDayCode === 0 || nextDayCode === 1) {
       condition = "Sunny";
-    } else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || (code >= 95 && code <= 99)) {
+    } else if ((nextDayCode >= 51 && nextDayCode <= 67) || (nextDayCode >= 80 && nextDayCode <= 82) || (nextDayCode >= 95 && nextDayCode <= 99)) {
       condition = "Rainy";
-    } else if (code >= 71 && code <= 77) {
+    } else if (nextDayCode >= 71 && nextDayCode <= 77) {
       condition = "Rainy"; // Group snow under Rainy
     }
     
@@ -73,4 +73,19 @@ export const fetchHistoricalData = async (lat, lon) => {
   });
   
   return trainingData;
+};
+
+/**
+ * Fetches accurate current and forecast weather data from Open-Meteo for a given location.
+ * 
+ * @param {number} lat Latitude
+ * @param {number} lon Longitude
+ * @returns {Promise<object>} Open-Meteo weather data
+ */
+export const fetchAccurateWeatherData = async (lat, lon) => {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,surface_pressure,weather_code,apparent_temperature&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,surface_pressure,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code,sunrise,sunset&timezone=auto`;
+  
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to fetch accurate weather data from Open-Meteo");
+  return response.json();
 };

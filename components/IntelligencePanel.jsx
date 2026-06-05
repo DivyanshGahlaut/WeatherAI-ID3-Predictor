@@ -161,14 +161,15 @@ export default function IntelligencePanel({
         {activeTab === "prediction" ? (
           <div style={{ animation: "fadeUp 0.3s ease" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <span style={{ fontSize: 13, color: muted }}>Predicted Outlook:</span>
+              <span style={{ fontSize: 13, color: text, fontWeight: 600 }}>Google-Grade Hybrid Prediction:</span>
               <div style={{
                 background: condGrad[prediction.dominant] || accent,
                 padding: "6px 14px",
                 borderRadius: 16,
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#fff"
+                color: "#fff",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
               }}>
                 {prediction.dominant === "Sunny" ? "☀" : prediction.dominant === "Rainy" ? "🌧" : "☁"} {prediction.dominant}
               </div>
@@ -197,12 +198,87 @@ export default function IntelligencePanel({
               </div>
             ))}
 
+            {/* Explainer card */}
+            <div style={{
+              background: dark ? "rgba(99, 102, 241, 0.08)" : "rgba(99, 102, 241, 0.04)",
+              border: `1px dashed ${dark ? "rgba(99, 102, 241, 0.3)" : "rgba(99, 102, 241, 0.15)"}`,
+              borderRadius: 12,
+              padding: "10px 12px",
+              fontSize: 11,
+              color: muted,
+              lineHeight: 1.4,
+              marginTop: 16,
+              marginBottom: 16
+            }}>
+              ℹ️ <strong>Ensembled Forecast:</strong> Combines local ID3 Decision Tree statistical transition patterns (30% weight) with live professional Numerical Weather Prediction (NWP) model outputs (70% weight) to achieve Google-grade accuracy.
+            </div>
+
+            {/* Sub-models comparison */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 12,
+              marginBottom: 16
+            }}>
+              {/* ID3 Decision Tree Sub-model */}
+              <div style={{
+                background: dark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)",
+                border: `1px solid ${cardBorder}`,
+                borderRadius: 16,
+                padding: "12px",
+              }}>
+                <h5 style={{ margin: "0 0 8px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: accent }}>
+                  🌳 Local ID3 Tree (30%)
+                </h5>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, color: muted }}>Outlook:</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: text }}>{prediction.id3?.dominant}</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {["Sunny", "Cloudy", "Rainy"].map(cond => (
+                    <div key={cond} style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: muted }}>
+                      <span>{cond === "Sunny" ? "☀" : cond === "Rainy" ? "🌧" : "☁"} {cond}</span>
+                      <span style={{ fontWeight: 600 }}>{prediction.id3?.[cond] || 0}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* OWM Forecast Sub-model */}
+              <div style={{
+                background: dark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)",
+                border: `1px solid ${cardBorder}`,
+                borderRadius: 16,
+                padding: "12px",
+              }}>
+                <h5 style={{ margin: "0 0 8px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#3b82f6" }}>
+                  🌐 NWP Forecast (70%)
+                </h5>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, color: muted }}>Outlook:</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: text }}>{prediction.forecast?.dominant}</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {["Sunny", "Cloudy", "Rainy"].map(cond => (
+                    <div key={cond} style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: muted }}>
+                      <span>{cond === "Sunny" ? "☀" : cond === "Rainy" ? "🌧" : "☁"} {cond}</span>
+                      <span style={{ fontWeight: 600 }}>{prediction.forecast?.[cond] || 0}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Feature categorization matrix header */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: muted, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Today's Discretized Input Features
+            </div>
+
             {/* Feature categorization matrix */}
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
               gap: 8,
-              marginTop: 16,
               padding: "12px",
               background: dark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
               borderRadius: 12
