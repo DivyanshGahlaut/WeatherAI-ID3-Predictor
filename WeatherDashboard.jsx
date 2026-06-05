@@ -426,13 +426,13 @@ export default function WeatherDashboard() {
         {current && (
           <div className="dashboard-grid" style={{ opacity: loading ? 0.6 : 1, transition: "opacity 0.3s ease" }}>
             {/* Left Column: Current & Forecast */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
               <WeatherCard 
                 current={current} toTemp={toTemp} dark={dark} text={styles.text} 
                 muted={styles.muted} card={styles.card} cardBorder={styles.cardBorder} 
               />
               
-              <div style={{ background: styles.card, border: `1px solid ${styles.cardBorder}`, borderRadius: 20, padding: "20px" }}>
+              <div style={{ background: styles.card, border: `1px solid ${styles.cardBorder}`, borderRadius: 20, padding: "20px", overflow: "hidden" }}>
                 <div style={{ display: "flex", gap: 6, marginBottom: 16, background: "rgba(0,0,0,0.05)", borderRadius: 24, padding: 4, width: "fit-content" }}>
                   {["today", "forecast"].map(tab => (
                     <button key={tab} className="tab-btn" onClick={() => setActiveTab(tab)}
@@ -471,7 +471,7 @@ export default function WeatherDashboard() {
             </div>
 
             {/* Right Column: Intelligence Hub */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
               <IntelligencePanel
                 prediction={prediction}
                 outdoorScore={outdoorScore}

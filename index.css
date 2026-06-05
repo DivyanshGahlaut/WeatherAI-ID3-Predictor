@@ -132,6 +132,7 @@ html, body, #root {
   overflow-x: auto;
   padding-bottom: 10px;
   width: 100%;
+  max-width: 100%;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
